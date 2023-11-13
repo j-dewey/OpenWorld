@@ -38,6 +38,6 @@ pub fn fall<O: PhysicsObject>(obj: &mut O, chunk: &Chunk, dt: f32){
 
     // keep going down until a block is hit. If a block is never hit, fall
     for i in 0..down_change as u32{
-
+        
     }
 }

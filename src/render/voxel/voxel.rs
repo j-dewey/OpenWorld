@@ -19,7 +19,7 @@ pub struct VoxelVertex{
     pub position: [f32; 3],
     pub color: [f32; 3],
     pub block_id: u32,
-    pub direction: i32 // can be any AbsolouteDirection
+    pub direction: f32 // can be any AbsolouteDirection
 }
 
 impl VertexTrait for VoxelVertex{
@@ -41,18 +41,18 @@ impl VertexTrait for VoxelVertex{
                     shader_location: 1,
                     format: wgpu::VertexFormat::Float32x3
                 },
-                // direction
+                // id
                 wgpu::VertexAttribute{
                     offset: (std::mem::size_of::<[f32; 3]>()*2) as wgpu::BufferAddress,
                     shader_location: 2,
-                    format: wgpu::VertexFormat::Sint32
+                    format: wgpu::VertexFormat::Uint32
                 },
-                // id
+                // direction
                 wgpu::VertexAttribute {
                     // size of position
-                    offset: (std::mem::size_of::<[f32; 3]>() * 2 + std::mem::size_of::<i32>()) as wgpu::BufferAddress,
+                    offset: (std::mem::size_of::<[f32; 3]>() * 2 + std::mem::size_of::<u32>()) as wgpu::BufferAddress,
                     shader_location: 3,
-                    format: wgpu::VertexFormat::Uint32
+                    format: wgpu::VertexFormat::Float32
                 }
             ]
         }
@@ -60,7 +60,7 @@ impl VertexTrait for VoxelVertex{
 }
 
 impl VoxelVertex{
-    pub fn new(position: [f32; 3], direction: i32, color: [f32; 3], block_id: u32) -> Self{
+    pub fn new(position: [f32; 3], direction: f32, color: [f32; 3], block_id: u32) -> Self{
         Self { position, direction, block_id, color }
     }
 }

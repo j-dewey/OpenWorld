@@ -20,3 +20,16 @@ impl Into<i32> for AbsolouteDirection{
         }
     }
 }
+
+impl Into<f32> for AbsolouteDirection{
+    fn into(self) -> f32 {
+        match self{
+            Self::North => 0.5,
+            Self::East => 0.5,
+            Self::South => 0.5,
+            Self::West => 0.5,
+            Self::Up => 1.0,
+            Self::Down => 0.25
+        }
+    }
+}
