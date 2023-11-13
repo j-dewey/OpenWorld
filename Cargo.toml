@@ -1,0 +1,21 @@
+[package]
+name = "OpenWorld"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# windowing
+log = "*"
+env_logger = "*"
+winit = "*"
+wgpu = "0.18.0"
+bytemuck = { version="*", features=["derive"] }
+
+# misc. 
+instant = "*" # timing
+cgmath = "*" # makes 3d calculations easier
+pollster = "*" # async
+hashbrown = "*" # better hashmaps
+bracket-noise = "*"
