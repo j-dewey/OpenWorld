@@ -35,7 +35,8 @@ fn get_suppoerted_keys() -> Vec<VirtualKeyCode>{
         VirtualKeyCode::Up,
         VirtualKeyCode::Down,
         VirtualKeyCode::Left,
-        VirtualKeyCode::Right
+        VirtualKeyCode::Right,
+        VirtualKeyCode::Space
     ]
 }
 
@@ -43,7 +44,8 @@ pub struct InputHandler{
     // keyboard states
     key_states: HashMap<VirtualKeyCode, bool>,
     // match a certain event such as up wih a specific key
-    key_events: HashMap<String, VirtualKeyCode>
+    key_events: HashMap<String, VirtualKeyCode>,
+    new_pressed: Vec<VirtualKeyCode>
 }
 
 impl InputHandler{
@@ -68,10 +70,13 @@ impl InputHandler{
         key_events.insert("rotate-down".into(), VirtualKeyCode::Down);
         key_events.insert("down".into(), VirtualKeyCode::X);
         key_events.insert("up".into(), VirtualKeyCode::Z);
+        key_events.insert("toggle-physics".into(), VirtualKeyCode::Q);
+        key_events.insert("toggle-debug".into(), VirtualKeyCode::L);
 
         Self { 
             key_states: key_states,
-            key_events: key_events
+            key_events: key_events,
+            new_pressed: Vec::new()
          }
     }
 
@@ -81,6 +86,9 @@ impl InputHandler{
         match event{
             WindowEvent::KeyboardInput { input: KeyboardInput{ state, virtual_keycode: Some(virtual_keycode), .. }, ..  } => {
                 // set the key in keystates to reflect whether it is pressed or not
+                if *state == ElementState::Pressed && !self.key_states.get(virtual_keycode).unwrap(){
+                    self.new_pressed.push(*virtual_keycode)
+                }
                 self.key_states.insert(*virtual_keycode, *state == ElementState::Pressed);
                 true
             },
@@ -105,5 +113,14 @@ impl InputHandler{
             );
         }
         event_states
+    }
+
+    pub fn check_new_event(&self, event: String) -> bool{
+        let key = self.key_events.get(&event).unwrap();
+        self.new_pressed.contains(key)
+    }
+
+    pub fn flush_new_presses(&mut self){
+        self.new_pressed.clear()
     }
 }

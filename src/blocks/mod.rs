@@ -1,17 +1,20 @@
 use bracket_noise::prelude::FastNoise;
 
-use crate::render::voxel::VoxelMesh;
-use self::{plants::GRASS, stones::DIRT};
+use crate::render::voxel::{VoxelMesh, INVERSE_VOXEL_WIDTH};
 
 mod stones;
 mod plants;
 
 pub const CHUNK_WIDTH: usize = 16;
 pub const CHUNK_HEIGHT: usize = 128;
+// idk y, but the chunks are offset by this value.
+// so chunk 0, 0 spawns 8 chunks away from the world 
+// coord 0, 0
+const WORLD_OFFSET: f32 = 8.0;
 pub type ChunkData = [[[usize; CHUNK_WIDTH]; CHUNK_HEIGHT]; CHUNK_WIDTH];
 
 // picture it as coordinates on a map
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ChunkId{
     pub x: i32,
     pub z: i32
@@ -53,6 +56,16 @@ impl Chunk{
 
         Self{ id, blocks, mesh }
     }
+
+    pub fn get_block(&self, x: usize, y: usize, z: usize) -> usize{
+        self.blocks[x][y][z]
+    }
+}
+
+pub fn world_coord_to_chunk_id(x: f32, z: f32) -> ChunkId{
+    let c_x = (x * INVERSE_VOXEL_WIDTH / CHUNK_WIDTH as f32).floor();
+    let c_z = (z * INVERSE_VOXEL_WIDTH / CHUNK_WIDTH as f32).floor();
+    ChunkId { x: c_x as i32, z: c_z as i32 }
 }
 
 pub struct BlockDefintion{

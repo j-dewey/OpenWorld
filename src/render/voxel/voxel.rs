@@ -1,8 +1,5 @@
-use core::panic;
-
 use bytemuck::{Zeroable, Pod};
 
-use crate::blocks::{ChunkData, ChunkId, CHUNK_WIDTH, BLOCK_ARRAY, CHUNK_HEIGHT};
 use crate::render::vertex::VertexTrait;
 use crate::render::mesh::MeshTrait;
 use crate::render::quad::{
@@ -11,7 +8,7 @@ use crate::render::quad::{
     bottom_face
 };
 
-pub const VOXEL_WIDTH: f32 = 0.25;
+use super::VOXEL_WIDTH;
 
 #[derive(Copy, Clone, Debug, Zeroable, Pod)]
 #[repr(C)]

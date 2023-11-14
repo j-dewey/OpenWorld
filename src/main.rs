@@ -1,5 +1,6 @@
 use blocks::{CHUNK_WIDTH, CHUNK_HEIGHT};
 use render::{voxel::{VoxelVertex, VoxelMesh, VoxelFaceRenders}, vertex::{TutorialVertex, SimpVertex}};
+use wgpu::PipelineLayoutDescriptor;
 use winit::{
     event,
     event_loop,
@@ -23,6 +24,9 @@ mod world;
 mod time_keep;
 use time_keep::TimeKeep;
 
+mod advanced_logging;
+use advanced_logging as al;
+
 pub async fn run() {
     env_logger::init();
     // create window and stuff
@@ -30,16 +34,14 @@ pub async fn run() {
     let window = window::WindowBuilder::new().build(&event_loop).unwrap();
     let mut ws = render::WindowState::new(&window).await;
     let mut time_keeper = TimeKeep::new();
+    let mut debug = false;
 
-    let mut world = world::World::new(
-        ws.get_config().width,
-        ws.get_config().height,
-        ws.get_device_ref()
-    );
+    let mut world = world::World::new(ws.get_device_ref());
+    let mut el = entity::EntityList::new(window.inner_size().width, window.inner_size().height);
 
     // player and input
     let mut input_handler = input::InputHandler::new();
-    let player_ref = world.get_player_mut();
+    let player_ref = el.get_player_mut();
     let camera_ref = player_ref.get_camera_ref_mut();
     let camera_uniform = camera_ref.create_uniform();
 
@@ -81,7 +83,7 @@ pub async fn run() {
             },
         event::Event::RedrawRequested(window_id) if window_id == window.id() => {
             // update camera uniform each frame
-            let camera_ref = world.get_player_mut().get_camera_ref_mut();
+            let camera_ref = el.get_player_mut().get_camera_ref_mut();
             let new_camera_bind_group = camera_ref.create_uniform().get_bind_group(ws.get_device_ref_mut());
             ws.update_shader_bind_group(
                 "voxel".into(),
@@ -89,7 +91,7 @@ pub async fn run() {
                 new_camera_bind_group
             );
 
-            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunks()) {
+            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunk_meshes()) {
                 Ok(_) => {}
                 // Reconfigure the surface if lost
                 Err(wgpu::SurfaceError::Lost) => ws.resize(ws.size),
@@ -115,13 +117,28 @@ pub async fn run() {
             let look_down = input_handler.get_key_event("rotate-down".into());
             let look_left = input_handler.get_key_event("rotate-left".into());
             let look_right = input_handler.get_key_event("rotate-right".into());
+            // funnnnnn stuffff
+            let toggle_physics = input_handler.check_new_event("toggle-physics".into());
+            let toggle_debug = input_handler.check_new_event("toggle-debug".into());
 
-            let player_ref = world.get_player_mut();
+            input_handler.flush_new_presses();
+
+            let player_ref = el.get_player_mut();
+            // fun toggles
+            if toggle_physics{
+                player_ref.physics_on = !player_ref.physics_on;
+            }
+            if toggle_debug{
+                debug = !debug;
+            }
+            // player input
             player_ref.handle_input(
                 [ forward as i32 + -1*backward as i32, right as i32 + -1*left as i32, up as i32 + -1*down as i32],
                 [ look_right as i32 + -1*look_left as i32, look_up as i32 + -1*look_down as i32],
                 dt
             );
+
+            el.update(&world, dt);
 
             // RedrawRequested will only trigger once, unless we manually
             // request it.

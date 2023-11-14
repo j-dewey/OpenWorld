@@ -25,8 +25,8 @@ pub const SAFE_FRAC_PI_2: f32 = FRAC_PI_2 - 0.0001;
 // a basic camera object
 pub struct Camera{
     position: cgmath::Point3<f32>,
-    yaw: cgmath::Rad<f32>,
-    pitch: cgmath::Rad<f32>,
+    pub yaw: cgmath::Rad<f32>,
+    pub pitch: cgmath::Rad<f32>,
     projection: Projection
 }
 
@@ -53,7 +53,7 @@ impl Camera{
             // pi/4 is equal to 45 degrees
             // for znear, don't use too low a value or the depth buffer breaks.
             // thank U/ProPuke for saying this in a post on reddit
-            projection: Projection::new(width, height, PI/4.0, 0.001, 100.0)
+            projection: Projection::new(width, height, PI/4.0, 0.1, 100.0)
         }
     }
 
@@ -91,16 +91,8 @@ impl Camera{
         }
     }
 
-    pub fn r#move(&mut self, forward_movement: f32, dy: f32, strafe_movement: f32){
-        let (yaw_sin, yaw_cos) = self.yaw.0.sin_cos();
-        let forward = cgmath::Vector3::new(yaw_cos, 0.0, yaw_sin).normalize();
-        let right = cgmath::Vector3::new(-yaw_sin, 0.0, yaw_cos);
-        let up_down = cgmath::Vector3::new(0.0, dy, 0.0);
-
-        let d_forward = forward * forward_movement;
-        let d_right = right * strafe_movement;
-
-        self.position += d_forward + d_right + up_down;
+    pub fn r#move(&mut self, movement: cgmath::Vector3<f32>){
+        self.position += movement;
     }
 
     pub fn rotate(&mut self, dyaw: f32, dpitch: f32){
@@ -109,6 +101,10 @@ impl Camera{
         if self.pitch + cgmath::Rad(dpitch) < cgmath::Rad(SAFE_FRAC_PI_2) && self.pitch + cgmath::Rad(dpitch) > -cgmath::Rad(SAFE_FRAC_PI_2){
             self.pitch += cgmath::Rad(dpitch);
         }
+    }
+
+    pub fn set_pos(&mut self, new_pos: cgmath::Point3<f32>){
+        self.position = new_pos;
     }
 }
 
