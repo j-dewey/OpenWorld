@@ -1,6 +1,3 @@
-use std::rc::Rc;
-use std::cell::RefCell;
-
 use bracket_noise::prelude::{
     FastNoise,
     NoiseType,
@@ -10,7 +7,6 @@ use hashbrown::HashMap;
 
 use crate::blocks::{Chunk, ChunkId, CHUNK_WIDTH, world_coord_to_chunk_id};
 use crate::physics::PhysicsObject;
-use crate::player::Player;
 use crate::entity::Entity;
 use crate::render::voxel::{VoxelMesh, INVERSE_VOXEL_WIDTH};
 
@@ -31,7 +27,6 @@ fn chunk_loader(width: u32, depth: u32, height_map: &FastNoise, device: &wgpu::D
 }
 
 pub struct World{
-    entities: Vec< Rc< RefCell<dyn Entity> > >,
     chunks: HashMap<ChunkId, Chunk>,
     height_map: FastNoise
 }
@@ -47,7 +42,6 @@ impl World{
         height_map.set_frequency(2.0);
 
         Self{
-            entities: Vec::new(),
             chunks: chunk_loader(WORLD_WIDTH, WORLD_DEPTH, &height_map, device),
             height_map
         }
