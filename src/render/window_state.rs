@@ -1,10 +1,8 @@
 use winit::window::Window;
 use wgpu;
-use wgpu::util::DeviceExt; // needed for device.create_buffer_init
 use hashbrown::HashMap;
-use bytemuck::NoUninit; // needed for generics with uniforms
 
-use super::{shader::Shader, mesh::MeshTrait, vertex::VertexTrait, texture::Texture};
+use super::{shader::Shader, mesh::MeshTrait, vertex::VertexTrait, texture::Texture, text::TextData};
 
 pub struct WindowState{
     surface: wgpu::Surface,
@@ -13,7 +11,8 @@ pub struct WindowState{
     config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
     shaders: HashMap<String, Shader>,
-    depth_texture: Texture
+    depth_texture: Texture,
+    text_data: TextData
 }
 
 impl WindowState{
@@ -71,6 +70,8 @@ impl WindowState{
 
         let depth_texture = Texture::create_depth(&device, &config, "depth_texture");
         
+        let text_data = TextData::new(config.width, config.height, &device, &queue);
+
         Self {
             surface,
             device,
@@ -78,7 +79,8 @@ impl WindowState{
             config,
             size,
             shaders: HashMap::new(),
-            depth_texture
+            depth_texture,
+            text_data
         }
     }
 
@@ -115,6 +117,15 @@ impl WindowState{
             self.surface.configure(&self.device, &self.config);
         }
         self.depth_texture = Texture::create_depth(&self.device, &self.config, "depth_texture");
+    }
+
+    //
+    //   Render Methods
+    //
+
+    pub fn render_debug(&mut self) -> Result<(), wgpu::SurfaceError>{
+
+        todo!()
     }
 
     pub fn render<V: VertexTrait, M: MeshTrait<V>>(&mut self, meshes: Vec<&M>) -> Result<(), wgpu::SurfaceError> {

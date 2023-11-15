@@ -31,7 +31,9 @@ pub async fn run() {
     env_logger::init();
     // create window and stuff
     let event_loop = event_loop::EventLoop::new();
-    let window = window::WindowBuilder::new().build(&event_loop).unwrap();
+    let window = window::WindowBuilder::new()
+        .with_title("OpenWorld")
+        .build(&event_loop).unwrap();
     let mut ws = render::WindowState::new(&window).await;
     let mut time_keeper = TimeKeep::new();
     let mut debug = false;

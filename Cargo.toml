@@ -5,12 +5,15 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[net]
+git-fetch-with-cli = true
+
 [dependencies]
 # windowing
 log = "*"
 env_logger = "*"
 winit = "*"
-wgpu = "0.18.0"
+wgpu = "0.18"
 bytemuck = { version="*", features=["derive"] }
 
 # misc. 
@@ -18,4 +21,7 @@ instant = "*" # timing
 cgmath = "*" # makes 3d calculations easier
 pollster = "*" # async
 hashbrown = "*" # better hashmaps
-bracket-noise = "*"
+bracket-noise = "*" # noise functions
+
+# the published version isn't up to date w/ wgpu but the github is
+glyphon = { git = "https://github.com/j-dewey/glyphon-for-open-world", version = "0.3.0" } 
