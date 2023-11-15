@@ -6,7 +6,8 @@ pub const TEXT_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8UnormSrgb
 pub struct TextData{
     font_system: glyphon::FontSystem,
     cache: glyphon::SwashCache,
-    atlas: glyphon::TextAtlas,
+    pub(crate) atlas: glyphon::TextAtlas,
+    pub(crate) text_renderer: glyphon::TextRenderer,
     buffer: glyphon::Buffer,
     resolution: glyphon::Resolution
 }
@@ -28,7 +29,7 @@ impl TextData{
             height: scrn_height
         };
 
-        Self { font_system, cache, atlas, buffer, resolution }
+        Self { font_system, cache, atlas, text_renderer, buffer, resolution }
     }
 
     pub fn resize(&mut self, scrn_width: u32, scrn_height: u32){
@@ -37,5 +38,30 @@ impl TextData{
             width: scrn_width,
             height: scrn_height
         };
+    }
+
+    pub fn pre_render(&mut self, text: &str, device: &wgpu::Device, queue: &wgpu::Queue) -> Result<(), glyphon::PrepareError>{
+        self.buffer.set_text(&mut self.font_system, text,  glyphon::Attrs::new().family(glyphon::Family::SansSerif), glyphon::Shaping::Advanced);
+        self.text_renderer.prepare(
+            device,
+            queue,
+            &mut self.font_system,
+            &mut self.atlas,
+            self.resolution,
+            [glyphon::TextArea {
+                buffer: &self.buffer,
+                left: 10.0,
+                top: 10.0,
+                scale: 1.0,
+                    bounds: glyphon::TextBounds {
+                        left: 0,
+                        top: 0,
+                        right: 600,
+                        bottom: 160,
+                    },
+               default_color: glyphon::Color::rgb(255, 255, 255),
+            }],
+            &mut self.cache,
+        )
     }
 }

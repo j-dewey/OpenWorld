@@ -93,7 +93,7 @@ pub async fn run() {
                 new_camera_bind_group
             );
 
-            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunk_meshes()) {
+            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunk_meshes(), debug) {
                 Ok(_) => {}
                 // Reconfigure the surface if lost
                 Err(wgpu::SurfaceError::Lost) => ws.resize(ws.size),

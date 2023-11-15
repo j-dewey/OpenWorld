@@ -116,6 +116,7 @@ impl WindowState{
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
         }
+        self.text_data.resize(new_size.width, new_size.height);
         self.depth_texture = Texture::create_depth(&self.device, &self.config, "depth_texture");
     }
 
@@ -123,12 +124,7 @@ impl WindowState{
     //   Render Methods
     //
 
-    pub fn render_debug(&mut self) -> Result<(), wgpu::SurfaceError>{
-
-        todo!()
-    }
-
-    pub fn render<V: VertexTrait, M: MeshTrait<V>>(&mut self, meshes: Vec<&M>) -> Result<(), wgpu::SurfaceError> {
+    pub fn render<V: VertexTrait, M: MeshTrait<V>>(&mut self, meshes: Vec<&M>, debug: bool) -> Result<(), wgpu::SurfaceError> {
         let output = self.surface.get_current_texture()?;
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -190,6 +186,31 @@ impl WindowState{
                 render_pass.draw_indexed(0..buffer_group.2, 0, 0..1);
             } 
         }
+
+        if debug{
+            self.text_data.pre_render("Debug", &self.device, &self.queue)
+                .expect("Error loading pre-render text data");
+            let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: None,
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Load,
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: None,
+                timestamp_writes: None,
+                occlusion_query_set: None,
+            });
+
+            // Load data from Advanced Logging
+
+            self.text_data.text_renderer.render(&self.text_data.atlas, &mut pass)
+                .expect("Error rendering text data");
+        }
+
         // submit will accept anything that implements IntoIter
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
