@@ -21,12 +21,6 @@ pub struct SimpVertex{
     z: f32
 }
 
-impl TutorialVertex{
-    pub fn to_simp(&self) -> SimpVertex{
-        return SimpVertex { x: self.position[0], y: self.position[1], z: self.position[2] }
-    }
-}
-
 impl VertexTrait for TutorialVertex{
     fn get_desc<'a>() -> VertexBufferLayout<'a> {
         wgpu::VertexBufferLayout {
@@ -71,11 +65,5 @@ impl VertexTrait for SimpVertex{
                 },
             ]
         }
-    }
-}
-
-impl SimpVertex{
-    pub fn get_position(&self) -> [f32; 3]{
-        [self.x, self.y, self.x]
     }
 }

@@ -24,11 +24,14 @@ mod world;
 mod time_keep;
 use time_keep::TimeKeep;
 
+/* For now it is experimental
 mod advanced_logging;
 use advanced_logging as al;
+*/
 
 pub async fn run() {
     env_logger::init();
+
     // create window and stuff
     let event_loop = event_loop::EventLoop::new();
     let window = window::WindowBuilder::new()

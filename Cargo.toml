@@ -22,6 +22,7 @@ cgmath = "*" # makes 3d calculations easier
 pollster = "*" # async
 hashbrown = "*" # better hashmaps
 bracket-noise = "*" # noise functions
+lazy_static = "*" # this is for a global log
 
 # the published version isn't up to date w/ wgpu but the github is
 glyphon = { git = "https://github.com/j-dewey/glyphon-for-open-world", version = "0.3.0" } 

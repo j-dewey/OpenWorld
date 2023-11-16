@@ -206,6 +206,7 @@ impl WindowState{
             });
 
             // Load data from Advanced Logging
+            
 
             self.text_data.text_renderer.render(&self.text_data.atlas, &mut pass)
                 .expect("Error rendering text data");
