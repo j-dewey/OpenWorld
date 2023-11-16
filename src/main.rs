@@ -24,14 +24,19 @@ mod world;
 mod time_keep;
 use time_keep::TimeKeep;
 
+/* For now it is experimental
 mod advanced_logging;
 use advanced_logging as al;
+*/
 
 pub async fn run() {
     env_logger::init();
+
     // create window and stuff
     let event_loop = event_loop::EventLoop::new();
-    let window = window::WindowBuilder::new().build(&event_loop).unwrap();
+    let window = window::WindowBuilder::new()
+        .with_title("OpenWorld")
+        .build(&event_loop).unwrap();
     let mut ws = render::WindowState::new(&window).await;
     let mut time_keeper = TimeKeep::new();
     let mut debug = false;
@@ -91,7 +96,7 @@ pub async fn run() {
                 new_camera_bind_group
             );
 
-            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunk_meshes()) {
+            match ws.render::<render::voxel::VoxelVertex, render::voxel::VoxelMesh>(world.get_chunk_meshes(), debug) {
                 Ok(_) => {}
                 // Reconfigure the surface if lost
                 Err(wgpu::SurfaceError::Lost) => ws.resize(ws.size),
