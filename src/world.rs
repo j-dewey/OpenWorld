@@ -64,5 +64,11 @@ impl World{
         println!("WC: {:?}", pd.position);
         println!("CID: {:?}", c_id);
         println!("CC: {}, {}", c_x, c_z);
+        let chunk = self.chunks.get(&c_id);
+        // can't do block checks on unloaded chunk
+        if chunk.is_none(){ return; }
+        let chunk = chunk.unwrap();
+        // basically just cast a ray and see if it gets cut. 
+        // if it does, move the object by the amount left after the cut
     }
 }
