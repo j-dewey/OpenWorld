@@ -1,13 +1,15 @@
+use std::vec;
+
 use bracket_noise::prelude::{
     FastNoise,
     NoiseType,
     FractalType
 };
+use cgmath::InnerSpace;
 use hashbrown::HashMap;
 
 use crate::blocks::{Chunk, ChunkId, CHUNK_WIDTH, world_coord_to_chunk_id};
 use crate::physics::PhysicsObject;
-use crate::entity::Entity;
 use crate::render::voxel::{VoxelMesh, INVERSE_VOXEL_WIDTH};
 
 const WORLD_WIDTH: u32 = 16;
@@ -54,6 +56,49 @@ impl World{
             self.chunks.iter().map(|(_, chunk)| &chunk.mesh)
         );
         return v
+    }
+
+    // this method assumes all poins and vectors are corrected
+    // for block space rather than shader space
+    // returns a vector representing a ray that collides with a block
+    // or just the original vector
+    pub fn cast_ray(&self, position: cgmath::Point3<f32>, vector: cgmath::Vector3<f32>) -> cgmath::Vector3<f32>{
+        // figure out how much to move if travelling in negative dir
+        fn negative_direction(spot: f32) -> f32 { spot - spot.floor() }
+        // figure out how much to move if travelling in position dir
+        fn positive_direction(spot: f32) -> f32 { spot.ceil() - spot }
+        
+        let x_dist_calc = if vector.x.signum() >= 0.0 { positive_direction } else { negative_direction };
+        let y_dist_calc = if vector.y.signum() >= 0.0 { positive_direction } else { negative_direction };
+        let z_dist_calc = if vector.z.signum() >= 0.0 { positive_direction } else { negative_direction };
+        
+        // FIX: Avoid divide by 0 error
+        // not likely to get exactly -0.0000000001
+        let d_x_by_y = vector.x / (vector.y + 0.0000000001);
+        let d_z_by_y = vector.z / (vector.y + 0.0000000001);
+
+        loop{
+            // find minimum amount needed to reach end of block
+            // if the next block is occupied, return the amount moved
+            // otherwise, 
+            // this may need trig
+
+            // how far the vector can travel 
+            let dist_x = x_dist_calc(position.x);
+            let adjusted_x = dist_x * d_x_by_y;
+            let dist_y = y_dist_calc(position.y);
+            let adjusted_y = dist_y; // same since Y is used as base
+            let dist_z = z_dist_calc(position.z);
+            let adjusted_z = dist_z * d_z_by_y;
+            if adjusted_x < adjusted_y && adjusted_x < adjusted_z {
+                
+            } else if adjusted_y < adjusted_x && adjusted_y < adjusted_z {
+
+            } else {
+
+            }
+        }
+        todo!()
     }
 
     pub fn check_col<O: PhysicsObject>(&self, obj: &O){
