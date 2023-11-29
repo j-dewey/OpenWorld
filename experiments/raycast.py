@@ -1,3 +1,4 @@
+from math import floor, ceil
 import pygame as pg
 
 VOXELS_ACROSS = 16
@@ -29,6 +30,27 @@ def set_vector():
     mc = pg.mouse.get_pos()
     movement = [ mc[0]-position[0], mc[1]-position[1] ]
 
+def cast_ray():
+    global position, movement
+    calc_dist_negative = lambda pos: pos - floor(pos)
+    calc_dist_positive = lambda pos: ceil(pos) - pos
+    dx_by_y = movement[0] / movement[1]
+    dy_by_y = 1
+    x_dist_calc = calc_dist_negative if movement[0] < 0 else calc_dist_positive
+    y_dist_calc = calc_dist_negative if movement[1] < 0 else calc_dist_positive
+
+    spot = position
+    done = False
+    while not done:
+        x_dist = x_dist_calc(spot[0])
+        adj_x_dist = x_dist * dx_by_y
+        y_dist = y_dist_calc(spot[1])
+        adj_y_dist = y_dist * dx_by_y
+        if adj_x_dist <= adj_y_dist:
+            pass
+        elif adj_y_dist < adj_x_dist:
+            pass
+
 if __name__ == '__main__':
     pg.init()
     win = pg.display.set_mode((SCRN_WIDTH, SCRN_HEIGHT))
@@ -42,16 +64,16 @@ if __name__ == '__main__':
 
 
     mode = 0
-    modes = [move_point, 'cast ray']
+    modes = [move_point, set_vector]
     # where ray will be cast from
     position = [0, 0]
     movement = [10, 10]
 
     while True:
         for ev in pg.event.get():
-            if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.char == 'e'):
+            if ev.type == pg.QUIT or (ev.type == pg.KEYDOWN and ev.unicode == 'e'):
                 quit()
-            elif ev.type == pg.KEYDOWN and ev.char == 'm':
+            elif ev.type == pg.KEYDOWN and ev.unicode == 'm':
                 mode = int(not bool(mode))
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 modes[mode]()
